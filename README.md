@@ -18,6 +18,127 @@ This integration connects to the [Sunology STREAM](https://sunology.eu/products/
 
 <img src="https://github.com/serahug/sunology-vault-ha/blob/main/ha-example-board-fr.png?raw=true" alt="Home Assistant Dashboard Example" width="600">
 
+<details>
+<summary>YAML configuration</summary>
+
+```yaml
+type: grid
+column_span: 2
+cards:
+  - type: heading
+    icon: mdi:battery-charging-wireless-80
+    heading_style: title
+    heading: Sunology VAULT
+  - graph: line
+    type: sensor
+    entity: sensor.play_max_1_battery_level
+    detail: 2
+    name: "VAULT #1"
+    hours_to_show: 24
+  - graph: line
+    type: sensor
+    entity: sensor.play_max_2_battery_level
+    detail: 2
+    name: "VAULT #2"
+    hours_to_show: 24
+  - graph: line
+    type: sensor
+    entity: sensor.play_max_3_battery_level
+    detail: 2
+    name: "VAULT #3"
+    hours_to_show: 24
+  - graph: line
+    type: sensor
+    entity: sensor.play_max_4_battery_level
+    detail: 2
+    name: "VAULT #4"
+    hours_to_show: 24
+  - type: heading
+    icon: mdi:battery-charging
+    heading: État (En charge | En décharge | Inactif)
+    heading_style: subtitle
+  - show_name: false
+    show_icon: true
+    show_state: true
+    type: glance
+    entities:
+      - entity: sensor.play_max_1_battery_state
+        show_state: true
+        name: "VAULT #1"
+        show_last_changed: false
+      - entity: sensor.play_max_2_battery_state
+        name: "VAULT #2"
+        tap_action:
+          action: more-info
+      - entity: sensor.play_max_3_battery_state
+        name: "VAULT #3"
+        tap_action:
+          action: more-info
+      - entity: sensor.play_max_4_battery_state
+        name: "VAULT #4"
+    grid_options:
+      columns: full
+      rows: auto
+    state_color: false
+  - type: heading
+    icon: mdi:battery-arrow-up
+    heading: Contrôle du seuil de charge (210W ➜ 450W)
+    heading_style: subtitle
+  - show_name: false
+    show_icon: true
+    show_state: true
+    type: glance
+    entities:
+      - entity: number.play_max_1_charge_threshold
+        show_state: true
+        name: "VAULT #1"
+        show_last_changed: false
+      - entity: number.play_max_2_charge_threshold
+        name: "VAULT #2"
+        show_last_changed: false
+        show_state: true
+      - entity: number.play_max_3_charge_threshold
+        name: "VAULT #3"
+        show_state: true
+        show_last_changed: false
+      - entity: number.play_max_4_charge_threshold
+        name: "VAULT #4"
+        show_state: true
+    grid_options:
+      columns: full
+      rows: 2
+    state_color: false
+  - type: heading
+    icon: mdi:battery-charging-20
+    heading: Contrôle de la conservation d'énergie (pendant 18h)
+    heading_style: subtitle
+  - show_name: false
+    show_icon: true
+    show_state: true
+    type: glance
+    entities:
+      - entity: switch.play_max_1_preserve_energy
+        show_state: true
+        name: "VAULT #1"
+        show_last_changed: false
+      - entity: switch.play_max_2_preserve_energy
+        name: "VAULT #2"
+        show_last_changed: false
+        show_state: true
+      - entity: switch.play_max_3_preserve_energy
+        name: "VAULT #3"
+        show_state: true
+      - entity: switch.play_max_4_preserve_energy
+        name: "VAULT #4"
+        show_state: true
+    grid_options:
+      columns: full
+      rows: 2
+    state_color: true
+```
+
+</details>
+
 ## Requirements
 
 - Home Assistant
