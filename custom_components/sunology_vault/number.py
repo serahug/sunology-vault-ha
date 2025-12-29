@@ -32,10 +32,10 @@ async def async_setup_entry(
 class SunologyThresholdNumber(
     CoordinatorEntity[SunologyDataUpdateCoordinator], NumberEntity
 ):
-    """Number entity for battery discharge threshold."""
+    """Number entity for battery charge threshold."""
 
     _attr_has_entity_name = True
-    _attr_translation_key = "discharge_threshold"
+    _attr_translation_key = "charge_threshold"
     _attr_native_min_value = 210
     _attr_native_max_value = 450
     _attr_native_step = 10

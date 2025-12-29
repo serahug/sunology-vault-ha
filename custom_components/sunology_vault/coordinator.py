@@ -148,7 +148,7 @@ class SunologyDataUpdateCoordinator(DataUpdateCoordinator[SunologyData]):
             raise HomeAssistantError(f"Failed to update setting: {err}") from err
 
     async def async_set_threshold(self, serial: str, value: int) -> None:
-        """Set discharge threshold."""
+        """Set charge threshold."""
         battery = self._data.batteries.get(serial)
         if not battery:
             raise HomeAssistantError(f"Battery {serial} not found")

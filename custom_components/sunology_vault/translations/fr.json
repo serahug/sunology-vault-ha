@@ -59,8 +59,8 @@
       }
     },
     "number": {
-      "discharge_threshold": {
-        "name": "Seuil de décharge"
+      "charge_threshold": {
+        "name": "Seuil de déclenchement de la charge"
       }
     }
   }

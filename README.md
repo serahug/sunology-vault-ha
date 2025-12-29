@@ -9,7 +9,7 @@ This integration connects to the [Sunology STREAM](https://sunology.eu/products/
 ## Use Cases
 
 - **Build a dashboard** to monitor all your batteries at a glance (level, state of charge, preserve energy status)
-- **Control battery settings** directly from Home Assistant (preserve energy mode, discharge threshold)
+- **Control battery settings** directly from Home Assistant (preserve energy mode, charge threshold)
 - **Automate battery behavior** based on weather forecast, electricity rates (peak/off-peak hours), or real-time consumption from a smart meter (e.g., Shelly EM)
 - **Sequential battery discharge** when you have multiple panels, discharge them one by one to match your energy needs and avoid sending excess energy back to the grid for free
 - **Integrate with other smart devices** trigger actions based on battery status (e.g., start appliances when battery is full, send alerts when battery is low)
@@ -50,7 +50,7 @@ This integration connects to the [Sunology STREAM](https://sunology.eu/products/
 | Entity | Type | Description |
 |--------|------|-------------|
 | Preserve Energy | Switch | Enable/disable battery preservation mode (18h) |
-| Discharge Threshold | Number | Discharge threshold (210-450W) |
+| Charge Threshold | Number | Charge threshold (210-450W) |
 
 > **Note:** Changes to controls may take up to 5 minutes to be applied to the solar panels (same delay as via the mobile app). Changes are visible immediately in the Sunology STREAM app. You can safely use both the app and this integration simultaneously.
 

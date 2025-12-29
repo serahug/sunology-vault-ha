@@ -59,8 +59,8 @@
       }
     },
     "number": {
-      "discharge_threshold": {
-        "name": "Discharge Threshold"
+      "charge_threshold": {
+        "name": "Charge Threshold"
       }
     }
   }
