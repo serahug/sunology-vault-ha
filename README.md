@@ -14,9 +14,9 @@ This integration connects to the [Sunology STREAM](https://sunology.eu/products/
 - **Sequential battery discharge** when you have multiple panels, discharge them one by one to match your energy needs and avoid sending excess energy back to the grid for free
 - **Integrate with other smart devices** trigger actions based on battery status (e.g., start appliances when battery is full, send alerts when battery is low)
 
-### Example Dashboard
+### Example Dashboard (French)
 
-![Home Assistant Dashboard Example](ha-example-board.png)
+<img src="https://github.com/serahug/sunology-vault-ha/blob/main/ha-example-board-fr.png?raw=true" alt="Home Assistant Dashboard Example" width="600">
 
 ## Requirements
 
