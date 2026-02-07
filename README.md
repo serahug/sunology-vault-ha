@@ -1,6 +1,6 @@
 # Sunology VAULT - Home Assistant Integration
 
-**Unofficial** Home Assistant integration for [Sunology VAULT](https://sunology.eu/products/vault-batterie-solaire-maison) ([PLAY Max](https://sunology.eu/products/playmax-station-solaire-batterie) battery).
+Home Assistant integration for [Sunology VAULT](https://sunology.eu/products/vault-batterie-solaire-maison) ([PLAY Max](https://sunology.eu/products/playmax-station-solaire-batterie) battery).
 
 This integration connects to the [Sunology STREAM](https://sunology.eu/products/stream-pilotage-suivi-energie) backend API to retrieve battery information and control PLAY Max battery settings, which is currently only possible through Sunology STREAM Mobile App.
 
@@ -185,6 +185,6 @@ This integration can be installed alongside the [official Sunology integration](
 
 ## Disclaimer
 
-This is an unofficial integration not affiliated with Sunology. Use at your own risk. The API may change without notice, which could break this integration.
+This integration is not affiliated with Sunology. Use at your own risk. The API may change without notice, which could break this integration.
 
 Sunology does not provide a public API, nor does the STREAM Connect hub expose PLAY Max data via its local WebSocket. I asked Sunology (December 2025) if they would accept open source contributions to their official HA integration — a common practice for projects hosted on GitHub — but they declined, preferring to keep control over their developments. They also indicated that adding PLAY Max battery (VAULT) support to their official HA integration is not planned. **If you're a Sunology user**, consider reaching out to them to request a public API or PLAY Max support in their official HA integration.
