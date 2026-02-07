@@ -144,6 +144,8 @@ class SunologyDataUpdateCoordinator(DataUpdateCoordinator[SunologyData]):
             if response.get("batteryThreshold") is not None:
                 battery.threshold = response["batteryThreshold"]
             self.async_set_updated_data(self._data)
+        except AuthenticationError as err:
+            raise ConfigEntryAuthFailed from err
         except ApiError as err:
             _LOGGER.error("Failed to set preserve energy for %s: %s", serial, err)
             raise HomeAssistantError(f"Failed to update setting: {err}") from err
@@ -175,6 +177,8 @@ class SunologyDataUpdateCoordinator(DataUpdateCoordinator[SunologyData]):
             if response.get("batteryThreshold") is not None:
                 battery.threshold = response["batteryThreshold"]
             self.async_set_updated_data(self._data)
+        except AuthenticationError as err:
+            raise ConfigEntryAuthFailed from err
         except ApiError as err:
             _LOGGER.error("Failed to set threshold for %s: %s", serial, err)
             raise HomeAssistantError(f"Failed to update setting: {err}") from err
