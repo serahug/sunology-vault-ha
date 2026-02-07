@@ -11,6 +11,9 @@ from .const import API_HEADERS, BASE_URL
 
 _LOGGER = logging.getLogger(__name__)
 
+RETRY_ATTEMPTS = 2
+RETRY_DELAY = 1
+
 
 def _mask_sensitive_data(data: dict | None, keys_to_mask: set[str]) -> dict | None:
     """Mask sensitive data in a dictionary for logging."""
@@ -97,6 +100,7 @@ class SunologyApiClient:
                     cookie = resp.cookies.get("SESSION")
                     if cookie:
                         self._session_token = cookie.value
+                        self._password = ""
                         _LOGGER.debug("[API] Login successful, session token stored")
                         return True
                     raise AuthenticationError("No session cookie in response")
@@ -109,11 +113,11 @@ class SunologyApiClient:
             _LOGGER.debug("[API] Network error: %s", err)
             raise ApiError(f"Network error: {err}") from err
 
-    async def async_get_stations(self) -> list:
+    async def async_get_stations(self) -> list[dict[str, Any]]:
         """Get list of stations."""
         return await self._async_request("GET", "/api/devices/stations-and-storages")
 
-    async def async_get_overview(self) -> dict:
+    async def async_get_overview(self) -> dict[str, Any]:
         """Get real-time overview data."""
         return await self._async_request(
             "POST",
@@ -121,7 +125,7 @@ class SunologyApiClient:
             json_data={"storages": [], "streamMeters": [], "erls": []},
         )
 
-    async def async_get_station_details(self, station_id: str) -> dict:
+    async def async_get_station_details(self, station_id: str) -> dict[str, Any]:
         """Get detailed info for a station."""
         return await self._async_request("GET", f"/api/solar-panels/{station_id}")
 
@@ -132,9 +136,9 @@ class SunologyApiClient:
         name: str,
         preserve_energy: bool | None = None,
         threshold: int | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Update station settings."""
-        data = {
+        data: dict[str, Any] = {
             "id": station_id,
             "serialNumber": serial_number,
             "name": name,
@@ -151,51 +155,65 @@ class SunologyApiClient:
         )
 
     async def _async_request(
-        self, method: str, endpoint: str, json_data: dict | None = None
-    ) -> dict | list:
-        """Make authenticated API request."""
+        self,
+        method: str,
+        endpoint: str,
+        json_data: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """Make authenticated API request with retry for transient errors."""
         if not self._session_token:
             raise AuthenticationError("Not authenticated")
 
         url = f"{BASE_URL}{endpoint}"
         headers = {**API_HEADERS, "Cookie": f"SESSION={self._session_token}"}
 
-        # Log request details
-        _LOGGER.debug("[API] >>> %s %s", method, url)
-        if json_data:
-            _LOGGER.debug("[API] Request body:\n%s", _format_json(json_data))
+        last_err: Exception | None = None
+        for attempt in range(1, RETRY_ATTEMPTS + 1):
+            # Log request details
+            _LOGGER.debug("[API] >>> %s %s (attempt %s)", method, url, attempt)
+            if json_data:
+                _LOGGER.debug("[API] Request body:\n%s", _format_json(json_data))
 
-        try:
-            session = await self._get_session()
-            async with session.request(
-                method,
-                url,
-                headers=headers,
-                json=json_data,
-            ) as resp:
-                # Log response status
+            try:
+                session = await self._get_session()
+                async with session.request(
+                    method,
+                    url,
+                    headers=headers,
+                    json=json_data,
+                ) as resp:
+                    # Log response status
+                    _LOGGER.debug(
+                        "[API] <<< Response: %s %s",
+                        resp.status,
+                        resp.reason,
+                    )
+
+                    if resp.status == 401:
+                        _LOGGER.debug("[API] Session expired (401)")
+                        raise AuthenticationError("Session expired")
+                    if resp.status >= 400:
+                        body_text = await resp.text()
+                        _LOGGER.debug("[API] Error response body:\n%s", body_text)
+                        raise ApiError(f"API error: {resp.status}")
+
+                    response_data = await resp.json()
+                    _LOGGER.debug(
+                        "[API] Response body:\n%s",
+                        _format_json(response_data),
+                    )
+                    return response_data
+            except (AuthenticationError, ApiError):
+                raise
+            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+                last_err = err
                 _LOGGER.debug(
-                    "[API] <<< Response: %s %s",
-                    resp.status,
-                    resp.reason,
+                    "[API] Transient error (attempt %s/%s): %s",
+                    attempt,
+                    RETRY_ATTEMPTS,
+                    err,
                 )
+                if attempt < RETRY_ATTEMPTS:
+                    await asyncio.sleep(RETRY_DELAY)
 
-                if resp.status == 401:
-                    _LOGGER.debug("[API] Session expired (401)")
-                    raise AuthenticationError("Session expired")
-                if resp.status >= 400:
-                    body_text = await resp.text()
-                    _LOGGER.debug("[API] Error response body:\n%s", body_text)
-                    raise ApiError(f"API error: {resp.status}")
-
-                response_data = await resp.json()
-                _LOGGER.debug(
-                    "[API] Response body:\n%s",
-                    _format_json(response_data),
-                )
-                return response_data
-        except AuthenticationError:
-            raise
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            _LOGGER.debug("[API] Network error: %s", err)
-            raise ApiError(f"Network error: {err}") from err
+        raise ApiError(f"Network error: {last_err}") from last_err
