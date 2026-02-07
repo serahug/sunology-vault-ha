@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
@@ -19,12 +20,13 @@ class SunologyVaultEntity(CoordinatorEntity[SunologyDataUpdateCoordinator]):
         """Initialize the entity."""
         super().__init__(coordinator)
         self._serial = serial
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, serial)},
-            "name": f"{coordinator.data.batteries[serial].name} ({serial})",
-            "manufacturer": "Sunology",
-            "model": "VAULT",
-        }
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, serial)},
+            name=coordinator.data.batteries[serial].name,
+            serial_number=serial,
+            manufacturer="Sunology",
+            model="VAULT",
+        )
 
     @property
     def _battery_data(self) -> BatteryData | None:
