@@ -34,5 +34,7 @@ class SunologyVaultEntity(CoordinatorEntity[SunologyDataUpdateCoordinator]):
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
+        if not super().available:
+            return False
         battery = self._battery_data
         return battery is not None and battery.device_state == "CONNECTED"
