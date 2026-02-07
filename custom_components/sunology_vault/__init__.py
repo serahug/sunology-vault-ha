@@ -24,13 +24,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await client.async_login()
     except AuthenticationError as err:
+        await client.async_close()
         raise ConfigEntryAuthFailed(err) from err
     except ApiError as err:
+        await client.async_close()
         raise ConfigEntryNotReady(err) from err
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator = SunologyDataUpdateCoordinator(hass, client, scan_interval)
-    await coordinator.async_config_entry_first_refresh()
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except Exception:
+        await client.async_close()
+        raise
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
