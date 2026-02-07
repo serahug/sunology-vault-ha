@@ -19,11 +19,13 @@
     },
     "error": {
       "cannot_connect": "Impossible de se connecter",
-      "invalid_auth": "Authentification invalide"
+      "invalid_auth": "Authentification invalide",
+      "unknown": "Erreur inattendue"
     },
     "abort": {
       "already_configured": "Compte déjà configuré",
-      "reauth_successful": "Reconnexion réussie"
+      "reauth_successful": "Reconnexion réussie",
+      "unknown": "Une erreur inattendue s'est produite"
     }
   },
   "options": {

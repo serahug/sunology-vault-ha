@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
+import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
@@ -24,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_EMAIL): str,
+        vol.Required(CONF_EMAIL): vol.Email(),
         vol.Required(CONF_PASSWORD): str,
     }
 )
@@ -52,13 +54,20 @@ class SunologyVaultConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
+            client = SunologyApiClient(
+                user_input[CONF_EMAIL],
+                user_input[CONF_PASSWORD],
+            )
             try:
-                client = SunologyApiClient(
-                    user_input[CONF_EMAIL],
-                    user_input[CONF_PASSWORD],
-                )
                 await client.async_login()
-
+            except AuthenticationError:
+                errors["base"] = "invalid_auth"
+            except (ApiError, aiohttp.ClientError, asyncio.TimeoutError):
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
                 await self.async_set_unique_id(user_input[CONF_EMAIL])
                 self._abort_if_unique_id_configured()
 
@@ -66,13 +75,8 @@ class SunologyVaultConfigFlow(ConfigFlow, domain=DOMAIN):
                     title="Sunology Stream",
                     data=user_input,
                 )
-            except AuthenticationError:
-                errors["base"] = "invalid_auth"
-            except ApiError:
-                errors["base"] = "cannot_connect"
-            except Exception:
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "cannot_connect"
+            finally:
+                await client.async_close()
 
         return self.async_show_form(
             step_id="user",
@@ -96,16 +100,24 @@ class SunologyVaultConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            assert self._reauth_entry is not None
+            if self._reauth_entry is None:
+                return self.async_abort(reason="unknown")
             email = self._reauth_entry.data[CONF_EMAIL]
 
+            client = SunologyApiClient(
+                email,
+                user_input[CONF_PASSWORD],
+            )
             try:
-                client = SunologyApiClient(
-                    email,
-                    user_input[CONF_PASSWORD],
-                )
                 await client.async_login()
-
+            except AuthenticationError:
+                errors["base"] = "invalid_auth"
+            except (ApiError, aiohttp.ClientError, asyncio.TimeoutError):
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
                 self.hass.config_entries.async_update_entry(
                     self._reauth_entry,
                     data={
@@ -115,14 +127,8 @@ class SunologyVaultConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
                 await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
-
-            except AuthenticationError:
-                errors["base"] = "invalid_auth"
-            except ApiError:
-                errors["base"] = "cannot_connect"
-            except Exception:
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "cannot_connect"
+            finally:
+                await client.async_close()
 
         return self.async_show_form(
             step_id="reauth_confirm",
