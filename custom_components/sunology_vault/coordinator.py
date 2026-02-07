@@ -6,18 +6,19 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import timedelta
 import logging
+from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ApiError, AuthenticationError, SunologyApiClient
-from .const import DOMAIN
+from .const import DOMAIN, MAX_THRESHOLD, MIN_THRESHOLD
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _get_or_default(data: dict, key: str, default):
+def _get_or_default(data: dict[str, Any], key: str, default: Any) -> Any:
     """Get value from dict, returning default if None or missing."""
     value = data.get(key)
     return value if value is not None else default
@@ -149,6 +150,10 @@ class SunologyDataUpdateCoordinator(DataUpdateCoordinator[SunologyData]):
 
     async def async_set_threshold(self, serial: str, value: int) -> None:
         """Set charge threshold."""
+        if not MIN_THRESHOLD <= value <= MAX_THRESHOLD:
+            raise HomeAssistantError(
+                f"Threshold must be between {MIN_THRESHOLD} and {MAX_THRESHOLD}"
+            )
         battery = self._data.batteries.get(serial)
         if not battery:
             raise HomeAssistantError(f"Battery {serial} not found")
