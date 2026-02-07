@@ -1,6 +1,6 @@
 {
   "domain": "sunology_vault",
-  "name": "Sunology VAULT Home Assistant Integration",
+  "name": "Sunology VAULT",
   "codeowners": ["@serahug"],
   "config_flow": true,
   "dependencies": [],
