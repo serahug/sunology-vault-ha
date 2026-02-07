@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.components.number import NumberEntity, NumberMode
+from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfPower
 from homeassistant.core import HomeAssistant
@@ -32,6 +32,7 @@ async def async_setup_entry(
 class SunologyThresholdNumber(SunologyVaultEntity, NumberEntity):
     """Number entity for battery charge threshold."""
 
+    _attr_device_class = NumberDeviceClass.POWER
     _attr_translation_key = "charge_threshold"
     _attr_native_min_value = MIN_THRESHOLD
     _attr_native_max_value = MAX_THRESHOLD
