@@ -48,7 +48,8 @@
         "state": {
           "off": "Inactif",
           "charging": "En charge",
-          "discharging": "En décharge"
+          "discharging": "En décharge",
+          "unplugged": "Débranchée"
         }
       },
       "battery_energy": {

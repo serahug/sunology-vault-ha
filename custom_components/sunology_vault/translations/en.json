@@ -48,7 +48,8 @@
         "state": {
           "off": "Idle",
           "charging": "Charging",
-          "discharging": "Discharging"
+          "discharging": "Discharging",
+          "unplugged": "Unplugged"
         }
       },
       "battery_energy": {

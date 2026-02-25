@@ -63,7 +63,7 @@ class SunologyBatteryStateSensor(SunologyVaultEntity, SensorEntity):
     """Battery state sensor."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = ["off", "charging", "discharging"]
+    _attr_options = ["off", "charging", "discharging", "unplugged"]
     _attr_translation_key = "battery_state"
 
     def __init__(
@@ -89,6 +89,8 @@ class SunologyBatteryStateSensor(SunologyVaultEntity, SensorEntity):
             return "mdi:battery-charging"
         if state == "discharging":
             return "mdi:battery-arrow-down"
+        if state == "unplugged":
+            return "mdi:battery-remove-outline"
         return "mdi:battery-off"
 
 
