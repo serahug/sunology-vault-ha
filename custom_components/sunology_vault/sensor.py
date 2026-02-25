@@ -62,6 +62,7 @@ class SunologyBatteryLevelSensor(SunologyVaultEntity, SensorEntity):
 class SunologyBatteryStateSensor(SunologyVaultEntity, SensorEntity):
     """Battery state sensor."""
 
+    _available_when_unplugged = True
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = ["off", "charging", "discharging", "unplugged"]
     _attr_translation_key = "battery_state"

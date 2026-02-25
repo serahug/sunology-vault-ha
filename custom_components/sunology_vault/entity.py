@@ -13,6 +13,7 @@ class SunologyVaultEntity(CoordinatorEntity[SunologyDataUpdateCoordinator]):
     """Base class for Sunology VAULT entities."""
 
     _attr_has_entity_name = True
+    _available_when_unplugged = False
 
     def __init__(
         self, coordinator: SunologyDataUpdateCoordinator, serial: str
@@ -39,4 +40,8 @@ class SunologyVaultEntity(CoordinatorEntity[SunologyDataUpdateCoordinator]):
         if not super().available:
             return False
         battery = self._battery_data
-        return battery is not None and battery.device_state == "CONNECTED"
+        if battery is None or battery.device_state != "CONNECTED":
+            return False
+        if not self._available_when_unplugged and battery.battery_state == "UNPLUGGED":
+            return False
+        return True
