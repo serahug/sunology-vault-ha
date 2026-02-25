@@ -39,6 +39,7 @@ class SunologyThresholdNumber(SunologyVaultEntity, NumberEntity):
     _attr_native_step = 10
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_mode = NumberMode.SLIDER
+    _available_when_unplugged = True
 
     def __init__(
         self, coordinator: SunologyDataUpdateCoordinator, serial: str

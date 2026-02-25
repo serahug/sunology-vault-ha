@@ -34,6 +34,7 @@ class SunologyPreserveEnergySwitch(SunologyVaultEntity, SwitchEntity):
     """Switch for battery preserve energy mode."""
 
     _attr_translation_key = "preserve_energy"
+    _available_when_unplugged = True
 
     def __init__(
         self, coordinator: SunologyDataUpdateCoordinator, serial: str
